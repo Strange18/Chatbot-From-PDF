@@ -1,4 +1,4 @@
-# Features of This Project (but not limited to)
+# Features of This Project
 
 User is able to Chat according to the pdf uploaded. \
 A conversational form for collecting user information (Name, Phone Number, Email) \
