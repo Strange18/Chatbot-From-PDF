@@ -58,12 +58,21 @@ def main():
 
     # the uploaded pdf is stored in the vector database
     if uploaded_pdf is not None:
-        pdf_file = io.BytesIO(uploaded_pdf.read())
-        full_path = os.path.join("data", "output.pdf")
-        with open(full_path, "wb") as file:
-            file.write(pdf_file.getvalue())
-        store_pdf_to_vector_db("./data/output.pdf")
-        st.sidebar.success("PDF uploaded and stored successfully!")
+        with st.sidebar:
+            with st.spinner("Processing"):
+                pdf_file = io.BytesIO(uploaded_pdf.read())
+                output_path = "data"
+                if not os.path.isdir(output_path):
+                    os.makedirs(output_path)
+                full_path = os.path.join(output_path, "output.pdf")
+                with open(full_path, "wb") as file:
+                    file.write(pdf_file.getvalue())
+                result = store_pdf_to_vector_db("./data/output.pdf")
+
+                if result == True:
+                    st.sidebar.success("PDF uploaded and stored successfully!")
+                else:
+                    st.sidebar.error("Error Uploading the PDF!")
 
     # container for chat display
     chat_display = st.empty()
@@ -86,9 +95,9 @@ def main():
     render_chat()
 
     if "user_data" not in st.session_state:
-        st.session_state.user_data = ""  
+        st.session_state.user_data = ""
     if "clear_input" not in st.session_state:
-        st.session_state.clear_input = False 
+        st.session_state.clear_input = False
 
     # Input box for the user
     user_input = st.text_area(

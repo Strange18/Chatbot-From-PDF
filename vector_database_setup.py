@@ -8,9 +8,9 @@ load_dotenv()
 import os
 
 # to get text from the pdf pages
-def get_text_from_pdf(files):
+def get_text_from_pdf(file):
     texts = ""
-    pdfReader = PyPDF2.PdfReader(files)
+    pdfReader = PyPDF2.PdfReader(file)
     for i in pdfReader.pages:
         texts += i.extract_text()
     return texts
@@ -27,18 +27,23 @@ def create_text_chunks(texts):
 
 # to store the chunks in the vector database 
 def get_vector_store(text_chunks):
-    embedding_model = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001", google_api_key=os.getenv("GEMINI_API_KEY")
-    )
-    vector_store = FAISS.from_texts(texts=text_chunks, embedding=embedding_model, normalize_L2=True)
-    vector_store.save_local('./db')
-    print('stored to db!')
+    try:
+        embedding_model = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001", google_api_key=os.getenv("GEMINI_API_KEY")
+        )
+        vector_store = FAISS.from_texts(texts=text_chunks, embedding=embedding_model, normalize_L2=True)
+        vector_store.save_local('./db')
+        print('stored to db!')
+        return True
+    except:
+        return False
     
 #  combining all the process  
 def store_pdf_to_vector_db(file):
+    print(f'file is {file}')
     text_output = get_text_from_pdf(file)
     chunks = create_text_chunks(text_output)
-    get_vector_store(chunks)
+    return get_vector_store(chunks)
     
 
 # store_pdf_to_vector_db(data_directory)
